@@ -1,0 +1,16 @@
+{
+	"name": "first_project_hapijs",
+	"version": "1.0.0",
+	"main": "server.js",
+	"type": "module",
+	"scripts": {
+		"start": "node server.js"
+	},
+	"keywords": [],
+	"author": "Narayan Maaity",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"@hapi/hapi": "^21.3.10"
+	}
+}
