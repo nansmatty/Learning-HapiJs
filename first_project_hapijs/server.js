@@ -37,6 +37,14 @@ const init = async () => {
 			},
 		},
 		{
+			method: "POST",
+			path: "/login",
+			handler: (request, h) => {
+				console.log({ formData: request.payload });
+				return "HI";
+			},
+		},
+		{
 			method: "GET",
 			path: "/download",
 			handler: (request, h) => {
