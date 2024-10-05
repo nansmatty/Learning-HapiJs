@@ -12,6 +12,7 @@
 	"description": "",
 	"dependencies": {
 		"@hapi/hapi": "^21.3.10",
+		"@hapi/inert": "^7.1.0",
 		"hapi-geo-locate": "^4.1.1"
 	}
 }

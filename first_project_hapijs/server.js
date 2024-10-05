@@ -1,27 +1,49 @@
 "use strict";
 
 import Hapi from "@hapi/hapi";
+import path from "path";
 import HapiLocation from "hapi-geo-locate";
+import HapiInert from "@hapi/inert";
 
 const init = async () => {
 	const server = Hapi.Server({
 		host: "localhost",
 		port: "4000",
-	});
-
-	await server.register({
-		plugin: HapiLocation,
-		options: {
-			enabledByDefault: true,
+		routes: {
+			files: {
+				relativeTo: path.join(path.resolve(), "static"),
+			},
 		},
 	});
+
+	await server.register([
+		{
+			plugin: HapiLocation,
+			options: {
+				enabledByDefault: true,
+			},
+		},
+		{
+			plugin: HapiInert,
+		},
+	]);
 
 	server.route([
 		{
 			method: "GET",
 			path: "/",
 			handler: (request, h) => {
-				return "<h1>Hello World!</h1>";
+				return h.file("welcome.html");
+			},
+		},
+		{
+			method: "GET",
+			path: "/download",
+			handler: (request, h) => {
+				return h.file("welcome.html", {
+					mode: "attachment",
+					filename: "welcome-download.html",
+				});
 			},
 		},
 		{
