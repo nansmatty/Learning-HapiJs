@@ -4,6 +4,8 @@ import Hapi from "@hapi/hapi";
 import path from "path";
 import HapiLocation from "hapi-geo-locate";
 import HapiInert from "@hapi/inert";
+import HapiVision from "@hapi/vision";
+import Handlebars from "handlebars";
 
 const init = async () => {
 	const server = Hapi.Server({
@@ -26,7 +28,17 @@ const init = async () => {
 		{
 			plugin: HapiInert,
 		},
+		{
+			plugin: HapiVision,
+		},
 	]);
+
+	server.views({
+		engines: {
+			html: Handlebars,
+		},
+		path: path.join(path.resolve(), "views"),
+	});
 
 	server.route([
 		{
@@ -60,6 +72,18 @@ const init = async () => {
 			handler: (request, h) => {
 				const location = request.location;
 				return h.response(location);
+			},
+		},
+		//Dynamic Page data serving
+		{
+			method: "GET",
+			path: "/dynamic",
+			handler: (request, h) => {
+				const data = {
+					name: "Narayan Maity",
+				};
+
+				return h.view("index", data);
 			},
 		},
 		{
