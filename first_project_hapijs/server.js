@@ -1,6 +1,7 @@
 "use strict";
 
 import Hapi from "@hapi/hapi";
+import HapiLocation from "hapi-geo-locate";
 
 const init = async () => {
 	const server = Hapi.Server({
@@ -8,60 +9,75 @@ const init = async () => {
 		port: "4000",
 	});
 
-	server.route({
-		method: "GET",
-		path: "/",
-		handler: (request, h) => {
-			return "<h1>Hello World!</h1>";
+	await server.register({
+		plugin: HapiLocation,
+		options: {
+			enabledByDefault: true,
 		},
 	});
 
-	server.route({
-		method: "GET",
-		path: "/users/{user}",
-		handler: (req, res) => {
-			return `<h1>Hello ${req.params.user}</h1>`;
+	server.route([
+		{
+			method: "GET",
+			path: "/",
+			handler: (request, h) => {
+				return "<h1>Hello World!</h1>";
+			},
 		},
-	});
+		{
+			method: "GET",
+			path: "/location",
+			handler: (request, h) => {
+				const location = request.location;
+				return h.response(location);
+			},
+		},
+		{
+			method: "GET",
+			path: "/users/{user}",
+			handler: (request, h) => {
+				return `<h1>Hello ${request.params.user}</h1>`;
+			},
+		},
+		//By adding question mark in parameter it became not mandantory parameter that means without passing the parameter the route still work
+		{
+			method: "GET",
+			path: "/not_madantory/{user?}",
+			handler: (request, h) => {
+				if (request.params.user) {
+					return `<h1>Hello ${request.params.user}</h1>`;
+				}
+				return `<h1>Hello Stranger</h1>`;
+			},
+		},
+		// Query parameters
+		{
+			method: "GET",
+			path: "/query_parameter",
+			handler: (request, h) => {
+				return `<h1>Hello ${request.query.name} ${
+					request.query.lastname ? request.query.lastname : ""
+				}</h1>`;
+			},
+		},
 
-	//By adding question mark in parameter it became not mandantory parameter that means without passing the parameter the route still work
-	server.route({
-		method: "GET",
-		path: "/not_madantory/{user?}",
-		handler: (req, res) => {
-			if (req.params.user) {
-				return `<h1>Hello ${req.params.user}</h1>`;
-			}
-			return `<h1>Hello Stranger</h1>`;
+		//redirections
+		{
+			method: "GET",
+			path: "/redirection",
+			handler: (request, h) => {
+				return h.redirect("/");
+			},
 		},
-	});
-
-	// Query parameters
-	server.route({
-		method: "GET",
-		path: "/query_parameter",
-		handler: (req, res) => {
-			return `<h1>Hello ${req.query.name} ${req.query.lastname ? req.query.lastname : ""}</h1>`;
+		//Handling 404 pages
+		{
+			method: "GET",
+			path: "/{any*}",
+			handler: (request, h) => {
+				return "<h1>Oh no! You must be lost!</h1>";
+			},
 		},
-	});
-
-	//redirections
-	server.route({
-		method: "GET",
-		path: "/redirection",
-		handler: (req, res) => {
-			return res.redirect("/");
-		},
-	});
-
-	//Handling 404 pages
-	server.route({
-		method: "GET",
-		path: "/{any*}",
-		handler: (req, res) => {
-			return "<h1>Oh no! You must be lost!</h1>";
-		},
-	});
+	]);
 
 	await server.start();
 	console.log("Server running on: ", server.info.uri);
